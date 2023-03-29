@@ -1,5 +1,6 @@
 # Final_project_5060
 todo
+
 implement simulation
 implement optimal stopping player
 implement explore exploit player
