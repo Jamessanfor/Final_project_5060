@@ -40,7 +40,9 @@ public:
 
     vector<card> cards;
     vector<int> potential_hands;
-    int bet;
+    int bet=1;
+    int money = INT_MAX/5;
+    bool in_or_out = true;
     int high = 0;
     string dup_rank;
     void set_high(string a, string b) {
@@ -310,20 +312,42 @@ public:
     }
 
     void deal(vector<player>& players) {
+
+        for (int i = 0; i < players.size(); i++) {
+            if (!i) {
+                for (int j = players[i].cards.size() - 1; j > 1; j--) {
+                    if (j>1) {
+                        DECK.push_back(players[i].cards.back());
+                        players[i].cards.pop_back();
+                    }
+
+                }
+            }
+            else {
+                for (int j = players[i].cards.size() - 1; j > 1; j--) {
+
+                    
+                    players[i].cards.pop_back();
+                }
+            }
+            while ( players[i].cards.size()) {
+                DECK.push_back(players[i].cards.back());
+                players[i].cards.pop_back();
+
+            }
+
+        }
+
+        shuffle();
+        shuffle();
+
         for (int i = 0; i < players.size(); i++) {
             for (int j = 0; j < 2; j++) {
                 players[i].cards.push_back(DECK.back());
                 DECK.pop_back();
             }
         }
-        for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 5; j++) {
-                players[i].cards.push_back(DECK[DECK.size() - (j + 1)]);
-            }
-        }
-        for (int i = 0; i < 5; i++) {
-            DECK.pop_back();
-        }
+
 
 
     }

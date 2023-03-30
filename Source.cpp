@@ -18,6 +18,11 @@ int main() {
     D.flop(players);
     D.turn(players);
     D.river(players);
+    D.deal(players);
+    D.flop(players);
+    D.turn(players);
+    D.river(players);
+
     for (int i = 0; i < players.size(); i++) {
         players[i].check_hands();
         for (int j = 0; j < players[i].cards.size(); j++) {
