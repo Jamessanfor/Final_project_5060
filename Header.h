@@ -1,12 +1,6 @@
 #pragma once
 
 
-
-#pragma once
-
-
-
-
 #include <cmath>
 #include <iostream>
 #include <algorithm>
@@ -69,7 +63,7 @@ public:
         vector<int> mp(straight.size());
         int count = 0;
         int temp = 0;
-
+        bool flag = false;
         for (int i = 1; i < cards.size(); i++) {
             for (int j = 1; j < straight.size(); j++) {
                 if (cards[i].rank == straight[j]) {
@@ -80,7 +74,8 @@ public:
         for (int i = 0; i < mp.size(); i++) {
             if (mp[i]) {
                 count++;
-                if (count >= 5)return true;
+                if (straight[i]== cards[0].rank || straight[i] == cards[1].rank) flag = true;
+                if (flag && count >= 5  )return true;
             }
             else count = 0;
         }
@@ -93,6 +88,7 @@ public:
         vector<int> mp(flush.size());
         int count = 0;
         int temp = 0;
+        bool flag = false;
 
         for (int i = 0; i < cards.size(); i++) {
             for (int j = 0; j < flush.size(); j++) {
@@ -102,7 +98,8 @@ public:
             }
         }
         for (int i = 0; i < mp.size(); i++) {
-            if (mp[i] >= 5) {
+
+            if (mp[i] >= 5 && (cards[0].suit == flush[i] || cards[1].suit == flush[i])) {
                 return true;
             }
 
@@ -117,7 +114,7 @@ public:
         vector<string> flush = { "Heart","Spade","Diamond","Club" };
         vector<string> straight = { "Ace","1","2","3","4","5","6","7","8","9","10","Jack","Queen","King","Ace" };
         vector<vector<int>> mp(flush.size(), vector<int>(straight.size()));
-
+        bool flag = false;
         for (int i = 0; i < cards.size(); i++) {
             for (int j = 0; j < flush.size(); j++) {
                 for (int k = 0; k < straight.size(); k++) {
@@ -133,9 +130,11 @@ public:
             for (int k = 0; k < straight.size(); k++) {
                 if (mp[j][k]) {
                     count++;
-                    if (count > 4)return true;
+                    if ( !(flag) && ((cards[0].rank==straight[k] && cards[0].suit == flush[j]) || (cards[1].rank == straight[k] && cards[1].suit == flush[j]))) { 
+                        flag = true; }
+                    if (count > 4 && flag )return true;
                 }
-                else count = 0;
+                else { count = 0; flag = false; }
 
             }
         }
@@ -146,7 +145,7 @@ public:
         vector<string> flush = { "Heart","Spade","Diamond","Club" };
         vector<string> straight = { "10","Jack","Queen","King","Ace" };
         vector<vector<int>> mp(flush.size(), vector<int>(straight.size()));
-
+        bool flag = false;
         for (int i = 0; i < cards.size(); i++) {
             for (int j = 0; j < flush.size(); j++) {
                 for (int k = 0; k < straight.size(); k++) {
@@ -160,9 +159,12 @@ public:
             for (int k = 0; k < straight.size(); k++) {
                 if (mp[j][k]) {
                     count++;
-                    if (count > 4)return true;
+                    if (!(flag) && ((cards[0].rank == straight[k] && cards[0].suit == flush[j]) || (cards[1].rank == straight[k] && cards[1].suit == flush[j]))) {
+                        flag = true;
+                    }
+                    if (count > 4 && flag )return true;
                 }
-                else count = 0;
+                else { count = 0; flag = false; }
 
             }
             count = 0;
@@ -175,35 +177,45 @@ public:
     int find_duplics(vector<card> cards) {
         int maxy = 0;
         unordered_map<string, int> mp;
-        for (int i = 0; i < cards.size(); i++) {
+        
+        mp[cards[0].rank]++;
+        mp[cards[1].rank]++;
+        
+        for (int i = 2; i < cards.size(); i++) {
+            if((cards[i].rank == cards[0].rank ) ||( cards[i].rank == cards[1].rank))
             mp[cards[i].rank]++;
         }
         for (auto& c : mp) {
             //set 4 of a kind
             if (c.second == 4) {
                 potential_hands[7]++;
+                set_high(c.first, c.first);
             }
             //set full house
             else if ((c.second == 3 && potential_hands[1]) || c.second == 2 && potential_hands[3]) {
                 potential_hands[6]++;
+                set_high(c.first, c.first);
             }
             //set 3 of a kind
             else if (c.second == 3) {
                 potential_hands[3]++;
+                set_high(c.first, c.first);
             }
             else if (c.second == 2 && potential_hands[1]) {
                 potential_hands[2]++;
+                set_high(c.first, c.first);
             }//set pair
             else if (c.second == 2) {
                 potential_hands[1]++;
+                set_high(c.first, c.first);
             }
 
-            maxy = max(maxy, c.second);
+            
         }
         if (potential_hands[1] && potential_hands[3]) {
             potential_hands[6]++;
         }
-        set_high(dup_rank, dup_rank);
+        
         return maxy;
     }
     void check_hands() {
@@ -212,6 +224,16 @@ public:
         potential_hands[8] = check_straight_flush();
         potential_hands[9] = check_Royal();
         find_duplics(cards);
+        int count = 0;
+            for (int i = 0; i < potential_hands.size(); i++) {
+                if (potential_hands[i])
+                    count++;
+            }
+            if (!count) {
+                potential_hands[0] = 1;
+                set_high(cards[0].rank, cards[1].rank);
+            }
+
     }
 
 
@@ -251,18 +273,42 @@ public:
             players.push_back(*temp);
             DECK.pop_back(); DECK.pop_back();
         }
-        for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 5; j++) {
-                players[i].cards.push_back(DECK[DECK.size() - (j + 1)]);
-            }
-        }
-        for (int i = 0; i < 5; i++) {
-            DECK.pop_back();
-        }
+
 
         return;
     }
-    //remember to pass by reference
+    void flop(vector<player>& players) {
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = 0; j < 3; j++) {
+                players[i].cards.push_back(DECK[DECK.size() - (j + 1)]);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            DECK.pop_back();
+        }
+    }
+    void turn(vector<player>& players) {
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = 0; j < 1; j++) {
+                players[i].cards.push_back(DECK[DECK.size() - (j + 1)]);
+            }
+        }
+        for (int i = 0; i < 1; i++) {
+            DECK.pop_back();
+        }
+    }
+
+    void river(vector<player>& players) {
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = 0; j < 1; j++) {
+                players[i].cards.push_back(DECK[DECK.size() - (j + 1)]);
+            }
+        }
+        for (int i = 0; i < 1; i++) {
+            DECK.pop_back();
+        }
+    }
+
     void deal(vector<player>& players) {
         for (int i = 0; i < players.size(); i++) {
             for (int j = 0; j < 2; j++) {
@@ -302,6 +348,9 @@ public:
         return;
     }
 
+
+
+    //these two are for testing
     void maketest(vector<player>& players, int heads, vector<card> cs) {
         for (int i = 0; i < heads; i++) {
             player* temp = new player(cs[cs.size() - 1], cs[cs.size() - 2]);
