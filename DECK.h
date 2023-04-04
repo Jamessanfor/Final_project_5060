@@ -1,6 +1,7 @@
 #pragma once
 
 #include "players.h"
+#include <queue>
 
 
 
@@ -14,11 +15,7 @@ public:
 
     }
 
-    int return_money() {
-        int temp = pot;
-        pot = 0;
-        return temp;
-    }
+
     
     deck() {
         for (int i = 0; i < suits.size(); i++) {
@@ -191,30 +188,94 @@ public:
 
     }
 
-    void betting_stage(vector<player> &players) {
-        int curr_bet = 1;
-        int temp_bet = curr_bet;
+    void divy_up_winnings(vector<player>& players) {
+        priority_queue<pair<int, int> > pq;
+        vector<int> winners;
+        int best_hand = 0;
+        int highest_card = 0;
+        int winning_hands = 0;
+        int count = 0;
         for (int i = 0; i < players.size(); i++) {
-            if (players[i].action==2) {//
-                //put money
+            if (players[i].action) {
+                pq.push(make_pair(players[i].curr_hand, i ));
 
-                curr_bet = players[i].raise_bet();
-                putmoney(curr_bet);
-            
-            }
-            else if (players[i].action == 1) {//meet
-                putmoney(players[i].meet_bet(curr_bet));
+
 
             }
         }
 
+        pair<int, int> check = pq.top();
+        pq.pop();
+        winners.push_back(check.second);
+        while (!pq.empty()) {
+            if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high < players[pq.top().second].high) {
+                winners.pop_back();
+                check = pq.top();
+                pq.pop();
+                winners.push_back(check.second);
+            }
+            else if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high == players[pq.top().second].high) {
+                check = pq.top();
+                pq.pop();
+                winners.push_back(check.second);
+
+            }
+                
+            else break;
+        
+        }
+
+
+        //distribute winnings
+
+        for (int i = 0; i < winners.size(); i++) {
+            players[winners[i]].money += pot / winners.size();
+
+        }
+        pot = 0;
+
+    }
+
+
+    void betting_stage(vector<player> &players) {
+        vector<int> bets(players.size());
+        int curr_bet = 1;
+        int maxy_bet = curr_bet;
+        int players_in = 0;
+        for (int i = 0; i < players.size(); i++) {
+            if (players[i].action == 2) {//
+                //put money
+
+                bets[i] = players[i].raise_bet();
+                players_in++;
+
+            }
+            else if (players[i].action)players_in++;
+            maxy_bet = max(bets[i], maxy_bet);
+        }
+        if (players_in > 1) {
+            for (int i = 0; i < players.size(); i++) {
+
+                if (players[i].action && bets[i] < maxy_bet) {
+                    players[i].meet_bet(maxy_bet - bets[i]);
+                }
+
+            }
+        }
+        else {
+            divy_up_winnings(players);
+        }
+        for (int i = 0; i < bets.size(); i++) {
+            putmoney(bets[i]);
+
+        }
 
 
     }
 
     void check_account_balance(vector<player>& players){
         for (int i = 0; i < players.size(); i++) {
-            if (!players[i].money) {
+            if (players[i].money<=0) {
                 swap(players[i], players[players.size()-1]);
                 
                 players.pop_back();

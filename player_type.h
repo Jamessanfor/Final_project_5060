@@ -12,17 +12,17 @@ class optimal_stopper {
 
 public:
 
-    int best = 0;
+    int stopping_hand = 0;
     int player_index = 0;
-    int action = 0;
+    
 
-    optimal_stopper(deck& D, vector<player> players,int id) {
+    optimal_stopper(deck& D, vector<player>& players,int id) {
         player_index = id;
         find_stopping(D, players);
     }
 
 
-    void find_stopping(deck& D, vector<player> players) {
+    void find_stopping(deck& D, vector<player>& players) {
         int sims = 1000;
         
         int maxy = 0;
@@ -36,35 +36,32 @@ public:
             D.shuffle();
             for (int i = players[player_index].potential_hands.size() - 1; i > -1; i--) {
                 if (players[player_index].potential_hands[i]) {
-                    best = i; break;
+                    stopping_hand = i; break;
                 }
 
             }
-            maxy = max(best, maxy);
+            maxy = max(stopping_hand, maxy);
             sims--;
         }
 
-        best = maxy;
+        stopping_hand = maxy;
         
         
     }
 
 
-
-
-    //
-    void raise_meet_fold(vector<player> players) {
+    void raise_meet_fold(vector<player>& players) {
         //check current hand
-        if (players[player_index].curr_hand >= (best-2)) {
-            action = raise;
+        if (players[player_index].curr_hand >= (stopping_hand-2) || dist(gen) > 6000) {
+            players[player_index].action = raise;
             
         }
-        else if (players[player_index].curr_hand >= (best - 3) && dist(gen)>5000 ) {
-            action = meet;
+        else if (players[player_index].curr_hand >= (1) || dist(gen) > 9000 ) {
+            players[player_index].action = meet;
             
         }
         else { 
-            action = fold;
+            players[player_index].action = fold;
             
         }
 
@@ -87,6 +84,62 @@ public:
 
 
 
+class genaric_player {
+
+public:
+
+    
+    int player_index = 0;
+
+
+    genaric_player( int id) {
+        player_index = id;
+        
+    }
+
+
+
+
+    void raise_meet_fold(vector<player>& players) {
+        //check current hand
+
+
+
+        if (players[player_index].curr_hand >= (3) || dist(gen) > 6000) {
+            players[player_index].action = raise;
+        }
+        else if (players[player_index].curr_hand >= (3) || dist(gen) > 9000) {
+            players[player_index].action = meet;
+        }
+        else if (players[player_index].curr_hand >= ( 2) || dist(gen) > 6000) {
+            players[player_index].action = meet;
+
+        }
+        else if (players[player_index].curr_hand >= (1) || dist(gen) > 9000) {
+            players[player_index].action = meet;
+
+        }
+        else {
+            players[player_index].action = fold;
+
+        }
+
+
+    }
+
+
+
+
+
+    /*
+    ofstream myfile;
+    int simulations = 1000;
+    myfile.open("win_loss.csv"); */
+
+
+
+
+};
 
 
 

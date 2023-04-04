@@ -267,6 +267,10 @@ public:
         potential_hands[7] = 0;
         potential_hands[8] = 0;
         potential_hands[9] = 0;
+
+        rasing = 0;
+        action = 1;
+
     }
 
 
