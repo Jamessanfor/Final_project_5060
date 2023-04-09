@@ -1,7 +1,7 @@
 
 
-#include "DECK.h"
 
+#include "player_type.h"
 
 
 
@@ -10,47 +10,65 @@ int main() {
     reverse(Possible_hand.begin(), Possible_hand.end());
     vector<player> players;
     vector<card> c;
-    int head = 4;
+    int head = 2;
 
     deck D = deck();
+
     D.shuffle();
     D.shuffle();
     D.makegame(players,head );
     D.flop(players);
     D.turn(players);
     D.river(players);
-    int sim = 100;
+    int sim = 100000;
+    int flag = 0;
+    optimal_stopper op_stop = optimal_stopper(D, players, 0);
+    genaric_player gen_player = genaric_player(1);
     while (sim) {
         //game
         D.shuffle();
         D.shuffle();
         D.deal(players);
-        D.flop(players);
-        D.turn(players);
-        D.river(players);
+        op_stop.raise_meet_fold(players);
+        gen_player.raise_meet_fold(players);
+        flag = D.betting_stage(players);
+        if (!flag) {
+            D.flop(players);
+            op_stop.raise_meet_fold(players);
+            gen_player.raise_meet_fold(players);
 
-
-
-        for (int i = 0; i < players.size(); i++) {
-            
-            players[i].check_hands();
-            for (int j = 0; j < players[i].cards.size(); j++) {
-                cout << "| " << players[i].cards[j].rank << "  " << players[i].cards[j].suit << "| ";
-            }
-            cout << endl;
-            for (int j = 0; j < players[i].potential_hands.size(); j++) {
-                if (players[i].potential_hands[j] ) {
-                    cout << Possible_hand[j] << " : ";
-                    if (Possible_hand[j] == Possible_hand[0] || Possible_hand[j] == Possible_hand[1]) {
-                        cout << ranks[players[i].high] << endl;
-                    }
-                }
-            }
-            cout << endl;
+            flag = D.betting_stage(players);
         }
+        
+        if (!flag) {
+            D.turn(players);
+            op_stop.raise_meet_fold(players);
+            gen_player.raise_meet_fold(players);
+
+        
+            flag = D.betting_stage(players);
+        }
+        
+        if (!flag) {
+            D.river(players);
+
+            op_stop.raise_meet_fold(players);
+            gen_player.raise_meet_fold(players);
+            D.divy_up_winnings(players);
+        }
+        flag = 0;
+        //D.print_playerhands(players);
+       // int enter;
         sim--;
+        
+       //cout<<players[0].money<<endl;
+       // cout << players[1].money << endl;
     }
-    return 0;
+    cout << D.pot << endl;
+    cout << players[0].money << endl;
+    cout << players[1].money << endl;
+
+        return 0;
 }
 
 

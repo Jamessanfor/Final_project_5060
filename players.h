@@ -48,37 +48,33 @@ public:
     vector<int> potential_hands;
 
     int money = INT_MAX / 5;
-    int rasing = 0;
     int action = 0;
     int high = 0;
     int curr_hand = 0;
+    int curr_bet = 0;
     string dup_rank;
 
-    int meet_bet(int bet) {
+    void meet_bet(int bet) {
 
 
         money = money - bet;
 
-        return bet;
+        curr_bet += bet;
 
-
+        
     }
 
-    int raise_bet() {
 
+    void fold_bet() {
 
-        money = money - rasing;
-
-        return rasing;
-
-
+        curr_bet = 0;
+    
     }
-
 
     void setaction() {
         if (curr_hand > 6 ||  ((dist(gen))>(curr_hand*1000)) ) {
             action = raise;//raise mode
-            rasing = dist(gen) % 50;
+            
         }
         else if (curr_hand > 5 || ((dist(gen)) > (curr_hand * 1000))) {
             action = meet;//meet bet mode
@@ -268,10 +264,11 @@ public:
         potential_hands[8] = 0;
         potential_hands[9] = 0;
 
-        rasing = 0;
+        
         action = 1;
 
     }
+
 
 
 

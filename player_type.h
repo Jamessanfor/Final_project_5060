@@ -11,7 +11,7 @@ vector<string> action_list = { "fold","meet","raise" };
 class optimal_stopper {
 
 public:
-
+    int stopping_card = 0;
     int stopping_hand = 0;
     int player_index = 0;
     
@@ -26,6 +26,7 @@ public:
         int sims = 1000;
         
         int maxy = 0;
+        int maxy_card = 0;
         while (sims) {
             D.shuffle();
             D.deal(players);
@@ -41,18 +42,19 @@ public:
 
             }
             maxy = max(stopping_hand, maxy);
+            maxy_card = max(maxy_card, players[player_index].high);
             sims--;
         }
 
         stopping_hand = maxy;
-        
+        stopping_card = maxy_card;
         
     }
 
 
     void raise_meet_fold(vector<player>& players) {
         //check current hand
-        if (players[player_index].curr_hand >= (stopping_hand-2) || dist(gen) > 6000) {
+        if (players[player_index].curr_hand >= (stopping_hand-2)|| players[player_index].high >= (stopping_card - 2) || dist(gen) > 6000) {
             players[player_index].action = raise;
             
         }
@@ -105,19 +107,11 @@ public:
 
 
 
-        if (players[player_index].curr_hand >= (3) || dist(gen) > 6000) {
+        if (players[player_index].curr_hand >= (4) || players[player_index].high>10 || dist(gen) > 6000) {
             players[player_index].action = raise;
         }
-        else if (players[player_index].curr_hand >= (3) || dist(gen) > 9000) {
+        else if (players[player_index].curr_hand >= (2) || players[player_index].high > 5 ||  dist(gen) > 9000) {
             players[player_index].action = meet;
-        }
-        else if (players[player_index].curr_hand >= ( 2) || dist(gen) > 6000) {
-            players[player_index].action = meet;
-
-        }
-        else if (players[player_index].curr_hand >= (1) || dist(gen) > 9000) {
-            players[player_index].action = meet;
-
         }
         else {
             players[player_index].action = fold;

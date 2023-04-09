@@ -12,7 +12,7 @@ public:
     int round = 0;
     void putmoney(int money) {
         pot = pot + money;
-
+       // cout<< " Pot: " << pot << endl;
     }
 
 
@@ -189,6 +189,7 @@ public:
     }
 
     void divy_up_winnings(vector<player>& players) {
+        
         priority_queue<pair<int, int> > pq;
         vector<int> winners;
         int best_hand = 0;
@@ -196,40 +197,48 @@ public:
         int winning_hands = 0;
         int count = 0;
         for (int i = 0; i < players.size(); i++) {
+
             if (players[i].action) {
-                pq.push(make_pair(players[i].curr_hand, i ));
+
+                pq.push(make_pair(players[i].curr_hand, i));
+            }
+            
+        }
+
+        if (!pq.empty()) {
+            pair<int, int> check = pq.top();
 
 
+            pq.pop();
+            winners.push_back(check.second);
+
+            while (!pq.empty()) {
+
+                if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high < players[pq.top().second].high) {
+                    winners.pop_back();
+                    check = pq.top();
+                    pq.pop();
+                    winners.push_back(check.second);
+                }
+                else if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high == players[pq.top().second].high) {
+                    check = pq.top();
+                    pq.pop();
+                    winners.push_back(check.second);
+
+                }
+
+                else break;
 
             }
         }
-
-        pair<int, int> check = pq.top();
-        pq.pop();
-        winners.push_back(check.second);
-        while (!pq.empty()) {
-            if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high < players[pq.top().second].high) {
-                winners.pop_back();
-                check = pq.top();
-                pq.pop();
-                winners.push_back(check.second);
-            }
-            else if (players[check.second].curr_hand == players[pq.top().second].curr_hand && players[check.second].high == players[pq.top().second].high) {
-                check = pq.top();
-                pq.pop();
-                winners.push_back(check.second);
-
-            }
-                
-            else break;
-        
-        }
+        else return;
 
 
         //distribute winnings
 
         for (int i = 0; i < winners.size(); i++) {
             players[winners[i]].money += pot / winners.size();
+            //cout << winners[i] <<" : " << pot << endl;
 
         }
         pot = 0;
@@ -237,39 +246,60 @@ public:
     }
 
 
-    void betting_stage(vector<player> &players) {
-        vector<int> bets(players.size());
-        int curr_bet = 1;
+    int betting_stage(vector<player> &players) {
+        vector<int> meet_players;
+        vector<int> bets;
+        int curr_bet = 5;
         int maxy_bet = curr_bet;
         int players_in = 0;
         for (int i = 0; i < players.size(); i++) {
             if (players[i].action == 2) {//
                 //put money
-
-                bets[i] = players[i].raise_bet();
+                maxy_bet *= 2;
+                players[i].meet_bet(maxy_bet);
+                maxy_bet = (maxy_bet, players[i].curr_bet);
+                meet_players.push_back(i);
                 players_in++;
-
             }
-            else if (players[i].action)players_in++;
-            maxy_bet = max(bets[i], maxy_bet);
-        }
-        if (players_in > 1) {
-            for (int i = 0; i < players.size(); i++) {
+            else if (players[i].action) {
 
-                if (players[i].action && bets[i] < maxy_bet) {
-                    players[i].meet_bet(maxy_bet - bets[i]);
+                meet_players.push_back(i);
+                players_in++;
+            }
+        }
+        for (int i = 0; i < meet_players.size(); i++) {
+            //cout<< "maxy: " << maxy_bet << endl;
+            players[meet_players[i]].meet_bet(maxy_bet);
+
+        }
+
+        if (players_in > 1) {
+            
+            for (int i = 0; i<players.size(); i++) {
+                if (players[i].action) {
+                    int temp = players[i].curr_bet;
+                   
+                    bets.push_back(temp);
+                    players[i].fold_bet();
                 }
 
             }
+
+
         }
         else {
+            
             divy_up_winnings(players);
+            return 1;
         }
+
         for (int i = 0; i < bets.size(); i++) {
             putmoney(bets[i]);
+            
+            //cout<<"betting: " << pot << endl;
 
         }
-
+        return 0;
 
     }
 
@@ -283,6 +313,31 @@ public:
         }
     
     }
+
+    void print_playerhands(vector<player>& players) {
+
+
+        for (int i = 0; i < players.size(); i++) {
+
+            players[i].check_hands();
+            for (int j = 0; j < players[i].cards.size(); j++) {
+                cout << "| " << players[i].cards[j].rank << "  " << players[i].cards[j].suit << "| ";
+            }
+            cout << endl;
+            for (int j = 0; j < players[i].potential_hands.size(); j++) {
+                if (players[i].potential_hands[j]) {
+                    cout << Possible_hand[j] << " : ";
+                    if (Possible_hand[j] == Possible_hand[0] || Possible_hand[j] == Possible_hand[1]) {
+                        cout << ranks[players[i].high] << endl;
+                    }
+                }
+            }
+            cout << endl;
+        }
+
+
+    }
+
 
 
 };
