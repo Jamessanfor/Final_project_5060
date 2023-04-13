@@ -5,9 +5,19 @@
 
 
 
+/*
+ofstream myfile;
+int simulations = 1000;
+myfile.open("win_loss.csv"); */
+
+
+
+
 vector<string> action_list = { "fold","meet","raise" };
 
-
+//optimal stopping player 
+//runs though a random output of hands and cards to see 
+//hands are optimal to bet on
 class optimal_stopper {
 
 public:
@@ -58,7 +68,7 @@ public:
             players[player_index].action = raise;
             
         }
-        else if (players[player_index].curr_hand >= (1) || dist(gen) > 9000 ) {
+        else if (players[player_index].curr_hand >= (1) || players[player_index].high >= (stopping_card - 4) ||  dist(gen) > 9000 ) {
             players[player_index].action = meet;
             
         }
@@ -85,7 +95,8 @@ public:
 };
 
 
-
+//genaric player
+//simulates baseline players
 class genaric_player {
 
 public:
@@ -124,6 +135,49 @@ public:
 
 
 
+};
+
+
+
+
+
+
+class Explore_Exploit {
+
+public:
+    int stopping_card = 0;
+    int stopping_hand = 0;
+    int player_index = 0;
+
+
+    Explore_Exploit(int id) {
+        player_index = id;
+        
+    }
+
+
+
+    void raise_meet_fold(vector<player>& players) {
+        //check current hand
+        if (players[player_index].curr_hand >= (stopping_hand - 2) || players[player_index].high >= (stopping_card - 2) || dist(gen) > 6000) {
+            players[player_index].action = raise;
+
+        }
+        else if (players[player_index].curr_hand >= (1) || players[player_index].high >= (stopping_card - 4) || dist(gen) > 9000) {
+            players[player_index].action = meet;
+
+        }
+        else {
+            players[player_index].action = fold;
+
+        }
+
+
+    }
+
+
+
+
 
     /*
     ofstream myfile;
@@ -134,6 +188,12 @@ public:
 
 
 };
+
+
+
+
+
+
 
 
 
