@@ -10,7 +10,7 @@ int main() {
     reverse(Possible_hand.begin(), Possible_hand.end());
     vector<player> players;
     vector<card> c;
-    int head = 2;
+    int head = 2;//number of players
 
     deck D = deck();
 
@@ -20,7 +20,7 @@ int main() {
     D.flop(players);
     D.turn(players);
     D.river(players);
-    int sim = 100000;
+    int sim = 1000;
     int flag = 0;
     optimal_stopper op_stop = optimal_stopper(D, players, 0);
     genaric_player gen_player = genaric_player(1);
