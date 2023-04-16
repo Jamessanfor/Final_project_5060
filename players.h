@@ -25,8 +25,8 @@ uniform_int_distribution<int> dist(0, 10000);
 vector<string> suits = { "Heart","Spade","Diamond","Club" };
 vector<string> ranks = { "1","2","3","4","5","6","7","8","9","10","Jack","Queen","King","Ace" };
 vector<string> Possible_hand = { "Royal Flush","Straight Flush","Four of a Kind","FULL House","Flush","Straight","Three of a Kind","Two Piar","Pair","High Card" };
-
-
+vector<int> potential_hands= { 0,0,0,0,0,0,0,0,0,0};
+unordered_map<string, int> mp;
 class card {
 public:
     string suit;
@@ -45,14 +45,14 @@ class player {
 public:
 
     vector<card> cards;
-    vector<int> potential_hands;
+    
 
     int money = INT_MAX / 5;
     int action = 0;
     int high = 0;
     int curr_hand = 0;
     int curr_bet = 0;
-    string dup_rank;
+    
 
     void meet_bet(int bet) {
 
@@ -71,6 +71,7 @@ public:
     
     }
 
+/*
     void setaction() {
         if (curr_hand > 6 ||  ((dist(gen))>(curr_hand*1000)) ) {
             action = raise;//raise mode
@@ -85,7 +86,7 @@ public:
         }
     }
 
-
+    */
 
 
     void set_high(string a, string b) {
@@ -100,7 +101,6 @@ public:
     player(card a, card b) {
         cards.push_back(a);
         cards.push_back(b);
-        potential_hands.resize(10);
         set_high(a.rank, b.rank);
     }
 
@@ -184,7 +184,7 @@ public:
 
     int find_duplics(vector<card> cards) {
         int maxy = 0;
-        unordered_map<string, int> mp;
+        //unordered_map<string, int> mp;
 
         mp[cards[0].rank]++;
         mp[cards[1].rank]++;
@@ -223,12 +223,11 @@ public:
         if (potential_hands[1] && potential_hands[3]) {
             potential_hands[6]++;
         }
-
+        mp.clear();
         return maxy;
     }
     void check_hands() {
         check_flush_straight_royal();
-
 
         find_duplics(cards);
         int count = 0;
@@ -245,10 +244,23 @@ public:
         }
         curr_hand = temp_hand;
         temp_hand = 0;
+        reset_for_next();
 
     }
 
-
+    void reset_for_next() {
+        potential_hands[0] = 0;
+        potential_hands[1] = 0;
+        potential_hands[2] = 0;
+        potential_hands[3] = 0;
+        potential_hands[4] = 0;
+        potential_hands[5] = 0;
+        potential_hands[6] = 0;
+        potential_hands[7] = 0;
+        potential_hands[8] = 0;
+        potential_hands[9] = 0;
+    
+    }
 
     void reset_hand() {
 

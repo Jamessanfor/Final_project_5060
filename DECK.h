@@ -324,8 +324,8 @@ public:
                 cout << "| " << players[i].cards[j].rank << "  " << players[i].cards[j].suit << "| ";
             }
             cout << endl;
-            for (int j = 0; j < players[i].potential_hands.size(); j++) {
-                if (players[i].potential_hands[j]) {
+            for (int j = 0; j < potential_hands.size(); j++) {
+                if (players[i].curr_hand==j) {
                     cout << Possible_hand[j] << " : ";
                     if (Possible_hand[j] == Possible_hand[0] || Possible_hand[j] == Possible_hand[1]) {
                         cout << ranks[players[i].high] << endl;
