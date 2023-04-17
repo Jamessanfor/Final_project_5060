@@ -171,7 +171,7 @@ public:
 
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map[i].size(); j++) {
-                map[i][j] = 0.5;
+                map[i][j] = 0.7;
             }
         }
 
@@ -192,31 +192,33 @@ public:
     
     void change_prob(int flag, vector<player>& players) {
         if ( flag ) {
-            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] < 0) ? (hand_map[players[player_index].curr_hand] / 2) : 0;
+            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] > 0) ? (hand_map[players[player_index].curr_hand] / 2) : 0;
             if (!players[player_index].curr_hand  ) {
 
-                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] < 0) ? (rank_map[players[player_index].high][0] / 2) : 0;
+                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] > 0) ? (rank_map[players[player_index].high][0] / 2) : 0;
 
             }
             else if (players[player_index].curr_hand==1) {
-                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] < 0) ? (rank_map[players[player_index].high][1] / 2) : 0;
+                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] > 0) ? (rank_map[players[player_index].high][1] / 2) : 0;
 
             }
         }
         else {
-            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] > 1) ? ((hand_map[players[player_index].curr_hand] + .01)) : 1;
+            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] < 1) ? ((hand_map[players[player_index].curr_hand] + 0.01)) : 1;
             if (!players[player_index].curr_hand) {
 
-                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] >1 ) ? (rank_map[players[player_index].high][0] +.01 ) : 1;
+                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] <1 ) ? (rank_map[players[player_index].high][0] + 0.01 ) : 1;
 
             }
             else if (players[player_index].curr_hand == 1) {
-                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] > 1) ? (rank_map[players[player_index].high][1] +.01) : 1;
+                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] < 1) ? (rank_map[players[player_index].high][1] +.01) : 1;
 
             }
 
         }
-        
+        //cout<<"hand: " << hand_map[players[player_index].curr_hand] << endl;
+        //cout << "rankhgih: " << rank_map[players[player_index].high][0] << endl;
+        //cout << "rankpair: " << rank_map[players[player_index].high][1] << endl;
         
     }
 
@@ -243,7 +245,7 @@ public:
     }
     bool bluff() {
 
-        return dist(gen) > 5000;
+        return dist(gen) < 100;
 
     }
 
@@ -258,16 +260,16 @@ public:
 
         //cout << "prob: " << hand_map[players[player_index].curr_hand] <<" : ";
         
-        if ( prob  < (hand_map[players[player_index].curr_hand] * 10000) || prob < (rank_map[players[player_index].curr_hand][0] * 10000) || prob < (rank_map[players[player_index].curr_hand][1] * 10000)) {
+        if (prob  < (hand_map[players[player_index].curr_hand] * 10000) || prob < (rank_map[players[player_index].curr_hand][0] * 10000) || prob < (rank_map[players[player_index].curr_hand][1] * 10000)) {
             players[player_index].action = raise;
-           //cout<< " raise " << " : ";
-           
+          // cout<< " raise " << " : "<< hand_map[players[player_index].curr_hand];
+          // cout << " raise " << " : " << rank_map[players[player_index].curr_hand][0];
 
         }
-        else if (prob < (hand_map[players[player_index].curr_hand] * 5000) || prob < (rank_map[players[player_index].curr_hand][0] * 5000) || prob < (rank_map[players[player_index].curr_hand][1] * 5000)) {
+        else if ( prob < (hand_map[players[player_index].curr_hand] * 5000) || prob < (rank_map[players[player_index].curr_hand][0] * 5000) || prob < (rank_map[players[player_index].curr_hand][1] * 5000)) {
             players[player_index].action = meet;
 
-            //cout << " meet " << " : ";
+            cout << " meet " << " : ";
 
         }
         else {
@@ -579,11 +581,11 @@ public:
 
         int prob = dist(gen);
         //cout<<" raise: "<< raise_prob << " meet: " << meet_prob<<endl;
-        if (prob < raise_prob*10000) {
+        if (prob < raise_prob*10000  ) {
             players[player_index].action = raise;
 
         }
-        else if (prob < meet_prob * 10000) {
+        else if (prob < meet_prob * 10000  ) {
             players[player_index].action = meet;
 
         }
@@ -600,16 +602,63 @@ public:
 
 
 
-    /*
-    ofstream myfile;
-    int simulations = 1000;
-    myfile.open("win_loss.csv"); */
-
-
-
-
+ 
 };
 
+
+
+void poker_sim(deck& D, vector<player>& players, optimal_stopper& op_stop, genaric_player& gen_player, Explore_Exploit_player& exp_exp, Monte_carlo_player& monte ) {
+
+
+    int flag = 0;
+    //game
+    D.shuffle();
+    D.shuffle();
+    D.deal(players);
+    op_stop.raise_meet_fold(players);
+    gen_player.raise_meet_fold(players);
+
+    exp_exp.raise_meet_fold(players);
+    //cout <<1<<endl;
+    monte.raise_meet_fold(players);
+    flag = D.betting_stage(players);
+    if (!flag) {
+        D.flop(players);
+        op_stop.raise_meet_fold(players);
+        gen_player.raise_meet_fold(players);
+        exp_exp.raise_meet_fold(players);
+        //cout <<2<<endl;
+        monte.raise_meet_fold(players);
+
+        flag = D.betting_stage(players);
+    }
+
+    if (!flag) {
+        D.turn(players);
+        op_stop.raise_meet_fold(players);
+        gen_player.raise_meet_fold(players);
+        exp_exp.raise_meet_fold(players);
+        //cout << 3.2 << endl;
+        monte.raise_meet_fold(players);
+        flag = D.betting_stage(players);
+    }
+
+    if (!flag) {
+        D.river(players);
+
+        op_stop.raise_meet_fold(players);
+        gen_player.raise_meet_fold(players);
+        exp_exp.raise_meet_fold(players);
+        //cout << 4 << endl;
+        monte.raise_meet_fold(players);
+
+        D.divy_up_winnings(players);
+
+
+    }
+    exp_exp.check_set(players);//update prob based on win loss
+
+}
 
 
 
