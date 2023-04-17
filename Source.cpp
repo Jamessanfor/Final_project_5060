@@ -6,6 +6,13 @@
 
 
 int main() {
+
+    
+ofstream myfile;
+int simulations = 1000;
+myfile.open("win_loss.csv");
+//*/
+
     //lazly didnt want to change the vector
     reverse(Possible_hand.begin(), Possible_hand.end());
     vector<player> players;
@@ -19,12 +26,12 @@ int main() {
     D.flop(players);
     D.turn(players);
     D.river(players);
-    int sim = 10000;
+    int sim = 100000;
     int flag = 0;
     cout<<"players size:"<< players.size() << endl;
     optimal_stopper op_stop = optimal_stopper(D, players, 0);
     genaric_player gen_player = genaric_player(1);
-    Explore_Exploit_player exp_exp = Explore_Exploit_player(2);
+    Explore_Exploit_player exp_exp = Explore_Exploit_player(2, players);
     Monte_carlo_player monte = Monte_carlo_player(3);
 
     while (sim) {
@@ -71,14 +78,18 @@ int main() {
 
             D.divy_up_winnings(players);
         
-            exp_exp.check_set(players);
+         
         }
+        exp_exp.check_set(players);//update prob based on win loss
         //cout << 5 << endl;
         flag = 0;
         //D.print_playerhands(players);
        // int enter;
         sim--;
-        
+        for (int o = 0; o < players.size(); o++) {
+            myfile<< players[o].wins<< ",";
+        }
+            myfile << "\n";
        // cout<<players[0].money<<endl;
        // cout << players[1].money << endl;
        // cout << players[2].money << endl;

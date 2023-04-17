@@ -52,7 +52,7 @@ public:
     int high = 0;
     int curr_hand = 0;
     int curr_bet = 0;
-    
+    int wins = 0;
 
     void meet_bet(int bet) {
 

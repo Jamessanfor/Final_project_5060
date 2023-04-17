@@ -238,6 +238,7 @@ public:
 
         for (int i = 0; i < winners.size(); i++) {
             players[winners[i]].money += pot / winners.size();
+            players[winners[i]].wins++;
             //cout << winners[i] <<" : " << pot << endl;
 
         }

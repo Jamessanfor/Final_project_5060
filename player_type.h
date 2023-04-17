@@ -93,15 +93,6 @@ public:
 
 
 
-
-    /*
-    ofstream myfile;
-    int simulations = 1000;
-    myfile.open("win_loss.csv"); */
-
-
-
-
 };
 
 
@@ -165,50 +156,77 @@ public:
     int rank_player= 0;
     int hand_player = 0;
 
-    vector<int> hand_map;
-    vector<int> rank_map;
-    void set_prob_hand(vector<int> &map) {
+    vector<double> hand_map;
+    vector<vector<double>> rank_map;
+    void set_prob_hand(vector<double>& map) {
     
         for (int i = 0; i < map.size(); i++) {
             if (i < ((map.size()) / 2))
                 map[i] = 0.5;
-            else map[i] = i / map.size();
+            else map[i] = (i+1) / map.size();
         }
 
     }
-    void set_prob(vector<int>& map) {
+    void set_prob(vector<vector<double>>& map) {
 
         for (int i = 0; i < map.size(); i++) {
-                map[i] = i / map.size();
+            for (int j = 0; j < map[i].size(); j++) {
+                map[i][j] = 0.5;
+            }
         }
 
     }
-    Explore_Exploit_player(int id) {
+    Explore_Exploit_player(int id, vector<player>& players ) {
         player_index = id;
         hand_map.resize(Possible_hand.size());
-        rank_map.resize(ranks.size());
+        rank_map.resize(ranks.size(), vector<double> (2));
         //set inital prob
         set_prob_hand(hand_map);
         set_prob(rank_map);
+        set_money(players);
     }
     void set_money(vector<player>& players) {
         money = players[player_index].money;
 
     }
+    
+    void change_prob(int flag, vector<player>& players) {
+        if ( flag ) {
+            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] < 0) ? (hand_map[players[player_index].curr_hand] / 2) : 0;
+            if (!players[player_index].curr_hand  ) {
+
+                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] < 0) ? (rank_map[players[player_index].high][0] / 2) : 0;
+
+            }
+            else if (players[player_index].curr_hand==1) {
+                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] < 0) ? (rank_map[players[player_index].high][1] / 2) : 0;
+
+            }
+        }
+        else {
+            hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] > 1) ? ((hand_map[players[player_index].curr_hand] + .01)) : 1;
+            if (!players[player_index].curr_hand) {
+
+                rank_map[players[player_index].high][0] = (rank_map[players[player_index].high][0] >1 ) ? (rank_map[players[player_index].high][0] +.01 ) : 1;
+
+            }
+            else if (players[player_index].curr_hand == 1) {
+                rank_map[players[player_index].high][1] = (rank_map[players[player_index].high][1] > 1) ? (rank_map[players[player_index].high][1] +.01) : 1;
+
+            }
+
+        }
+        
+        
+    }
+
     void check_money(vector<player>& players) {
         
-       if( money > players[player_index].money){
-           
-           rank_map[players[player_index].high] = (rank_map[players[player_index].high] <0) ? (rank_map[players[player_index].high]-.01) : 0;
-           hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] < 0) ? (hand_map[players[player_index].curr_hand] - .01) : 0;
-
-       }
-       else {
-           
-           rank_map[players[player_index].high] = (rank_map[players[player_index].high] > 1) ? ((rank_map[players[player_index].high] + .01)) : 1;
-           hand_map[players[player_index].curr_hand] = (hand_map[players[player_index].curr_hand] > 1) ? ((hand_map[players[player_index].curr_hand] + .01)) : 1;
-
-       }
+        change_prob((money > players[player_index].money), players);
+       
+       //cout<< "prob1: " << hand_map[players[player_index].curr_hand] <<" : ";
+       //cout << "prob2: " << rank_map[players[player_index].curr_hand][0] << " : ";
+       //cout << "prob3: " << rank_map[players[player_index].curr_hand][1] << " : ";
 
     }
     void check_set(vector<player>& players){
@@ -240,15 +258,16 @@ public:
 
         //cout << "prob: " << hand_map[players[player_index].curr_hand] <<" : ";
         
-        if ( prob  <= (hand_map[players[player_index].curr_hand] * 10000) || prob <= (rank_map[players[player_index].curr_hand] * 10000)) {
+        if ( prob  < (hand_map[players[player_index].curr_hand] * 10000) || prob < (rank_map[players[player_index].curr_hand][0] * 10000) || prob < (rank_map[players[player_index].curr_hand][1] * 10000)) {
             players[player_index].action = raise;
-            //cout<< " raise " << " : ";
+           //cout<< " raise " << " : ";
+           
 
         }
-        else if (prob <= (hand_map[players[player_index].curr_hand] * 15000) || prob <= (rank_map[players[player_index].curr_hand] * 15000)) {
+        else if (prob < (hand_map[players[player_index].curr_hand] * 5000) || prob < (rank_map[players[player_index].curr_hand][0] * 5000) || prob < (rank_map[players[player_index].curr_hand][1] * 5000)) {
             players[player_index].action = meet;
 
-         //   cout << " meet " << " : ";
+            //cout << " meet " << " : ";
 
         }
         else {
@@ -263,10 +282,7 @@ public:
 
 
 
-    /*
-    ofstream myfile;
-    int simulations = 1000;
-    myfile.open("win_loss.csv"); */
+
 
 
 
