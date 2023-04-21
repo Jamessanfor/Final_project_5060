@@ -71,22 +71,7 @@ public:
     
     }
 
-/*
-    void setaction() {
-        if (curr_hand > 6 ||  ((dist(gen))>(curr_hand*1000)) ) {
-            action = raise;//raise mode
-            
-        }
-        else if (curr_hand > 5 || ((dist(gen)) > (curr_hand * 1000))) {
-            action = meet;//meet bet mode
 
-        }
-        else {
-            action = fold;
-        }
-    }
-
-    */
 
 
     void set_high(string a, string b) {

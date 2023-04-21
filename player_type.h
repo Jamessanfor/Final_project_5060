@@ -162,7 +162,7 @@ public:
     
         for (int i = 0; i < map.size(); i++) {
             if (i < ((map.size()) / 2))
-                map[i] = 0.5;
+                map[i] = 0.7;
             else map[i] = (i+1) / map.size();
         }
 
