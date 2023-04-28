@@ -1,18 +1,18 @@
 # Final_project_5060
 todo
 
-implement simulation
+x implement simulation
 
-implement optimal stopping player
+x implement optimal stopping player
 
-implement explore exploit player
+x implement explore exploit player
 
-implement Monte Carlo player
+x implement Monte Carlo player
 
 implement Baysian player
 
-write report and findings
+x write report and findings
 
-write presentation
+x write presentation
 
 
