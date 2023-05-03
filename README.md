@@ -14,5 +14,3 @@ implement Baysian player
 x write report and findings
 
 x write presentation
-
-
