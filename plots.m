@@ -1,6 +1,5 @@
 hold on 
 grid on
-
 x2= table2array(winloss(:,1));
 x1= table2array(winloss(:,2));
 x3= table2array(winloss(:,3));
