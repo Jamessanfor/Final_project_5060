@@ -9,7 +9,6 @@ x implement explore exploit player
 
 x implement Monte Carlo player
 
-implement Baysian player
 
 x write report and findings
 
